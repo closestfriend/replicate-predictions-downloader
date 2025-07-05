@@ -1,0 +1,23 @@
+{
+  "name": "replicate-predictions-downloader",
+  "version": "1.0.0",
+  "description": "A Node.js script to download and organize all your Replicate predictions, including images, metadata, and other outputs",
+  "main": "replicate_downloaderv3.js",
+  "type": "module",
+  "scripts": {
+    "start": "node replicate_downloaderv3.js"
+  },
+  "keywords": [
+    "replicate",
+    "ai",
+    "machine-learning",
+    "downloader",
+    "predictions",
+    "organization"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^5.3.1"
+  }
+} 
