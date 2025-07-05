@@ -5,7 +5,8 @@
   "main": "replicate_downloaderv3.js",
   "type": "module",
   "scripts": {
-    "start": "node replicate_downloaderv3.js"
+    "start": "node replicate_downloaderv3.js",
+    "download": "node replicate_downloaderv3.js"
   },
   "keywords": [
     "replicate",
@@ -13,11 +14,29 @@
     "machine-learning",
     "downloader",
     "predictions",
-    "organization"
+    "organization",
+    "replicate-api",
+    "model-outputs"
   ],
-  "author": "",
+  "author": "closestfriend",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/closestfriend/replicate-predictions-downloader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/closestfriend/replicate-predictions-downloader/issues"
+  },
+  "homepage": "https://github.com/closestfriend/replicate-predictions-downloader#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "archiver": "^5.3.1"
-  }
+  },
+  "files": [
+    "replicate_downloaderv3.js",
+    "README.md",
+    "LICENSE.md"
+  ]
 } 
