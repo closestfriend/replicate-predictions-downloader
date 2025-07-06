@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node replicate_downloaderv3.js",
-    "download": "node replicate_downloaderv3.js"
+    "download": "node replicate_downloaderv3.js",
+    "example": "node example.js"
   },
   "keywords": [
     "replicate",
@@ -32,11 +33,13 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "archiver": "^5.3.1"
+    "archiver": "^5.3.1",
+    "dotenv": "^16.3.1"
   },
   "files": [
     "replicate_downloaderv3.js",
+    "example.js",
     "README.md",
     "LICENSE.md"
   ]
-} 
+}
