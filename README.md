@@ -1,33 +1,60 @@
 # Replicate Predictions Downloader
 
-A Node.js script to download and organize all your Replicate predictions, including images, metadata, and other outputs.
+A Node.js script to download and organize all your Replicate predictions, including images, metadata, and other outputs before they expire.
+
+![Replicate Downloader Banner](https://replicate.com/static/favicon.png)
 
 ## Features
 
-- Downloads all predictions from your Replicate account
-- Organizes files by model and date
-- Creates ZIP archives for each model (optional)
-- Saves enhanced metadata for all predictions
-- Shows detailed download statistics
+- 📥 Downloads all predictions from your Replicate account
+- 🗂️ Organizes files by model and date
+- 🗜️ Creates ZIP archives for each model (optional)
+- 📊 Saves enhanced metadata for all predictions
+- 📈 Shows detailed download statistics
+- ⏱️ Preserves predictions before they expire
+
+## Why Use This Tool?
+
+Replicate only stores your predictions temporarily. This tool helps you preserve your valuable work before it disappears, with intelligent organization to make your outputs easy to find later.
 
 ## Setup
 
-1. Install Node.js if you haven't already
-2. Install dependencies:
-   ```bash
-   npm install fs path https archiver
-   ```
+### Prerequisites
 
-3. Get your Replicate API token from: https://replicate.com/account/api-tokens
+- Node.js 18+ installed
+- A Replicate account with API access
 
-4. Set your API token using one of these methods:
+### Installation
 
-   a. Export in terminal (temporary):
+#### Option 1: Clone and install locally
+
+```bash
+# Clone the repository
+git clone https://github.com/closestfriend/replicate-predictions-downloader.git
+cd replicate-predictions-downloader
+
+# Install dependencies
+npm install
+```
+
+#### Option 2: Install via npm (coming soon)
+
+```bash
+npm install -g replicate-predictions-downloader
+```
+
+### API Token Setup
+
+Get your Replicate API token from: https://replicate.com/account/api-tokens
+
+Set your API token using one of these methods:
+
+1. Export in terminal (temporary):
    ```bash
    export REPLICATE_API_TOKEN=your_token_here
    ```
 
-   b. Create a .env file (permanent):
+2. Create a .env file (permanent):
    ```
    REPLICATE_API_TOKEN=your_token_here
    ```
@@ -36,7 +63,14 @@ A Node.js script to download and organize all your Replicate predictions, includ
 
 Run the script:
 ```bash
+# If installed locally
+npm start
+
+# Or directly
 node replicate_downloaderv3.js
+
+# If installed globally (coming soon)
+replicate-downloader
 ```
 
 The script will:
@@ -55,7 +89,39 @@ You can adjust these settings in the CONFIG object:
 - `createZips`: Whether to create ZIP archives
 - `enhancedMetadata`: Whether to save enhanced metadata
 
+## Output Structure
+
+The tool creates a directory structure like this:
+
+```
+replicate_outputs_YYYY-MM-DD/
+├── by-model/
+│   ├── model1/
+│   │   ├── YYYY-MM-DD_model1_prompt_id.png
+│   │   ├── YYYY-MM-DD_model1_prompt_id.jpg
+│   │   └── ...
+│   ├── model2/
+│   │   └── ...
+│   └── ...
+├── model1.zip
+├── model2.zip
+└── ...
+replicate_metadata_YYYY-MM-DD.json
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
 ## Security Note
 
 ⚠️ Never commit your API token or .env file to version control!
-The included .gitignore will help prevent this. 
+The included .gitignore will help prevent this.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Background
+
+This tool was created while working on LLM behavior/personality research to preserve valuable predictions before they expired.
