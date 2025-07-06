@@ -1,5 +1,5 @@
 // Example of using ReplicateDownloader as a module
-import ReplicateDownloader from './replicate_downloaderv3.js';
+import ReplicateDownloader from './index.js';
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file (if present)
