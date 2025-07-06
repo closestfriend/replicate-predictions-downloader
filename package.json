@@ -2,11 +2,11 @@
   "name": "replicate-predictions-downloader",
   "version": "1.0.0",
   "description": "A Node.js script to download and organize all your Replicate predictions, including images, metadata, and other outputs",
-  "main": "replicate_downloaderv3.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node replicate_downloaderv3.js",
-    "download": "node replicate_downloaderv3.js",
+    "start": "node index.js",
+    "download": "node index.js",
     "example": "node example.js"
   },
   "keywords": [
@@ -37,7 +37,7 @@
     "dotenv": "^16.3.1"
   },
   "files": [
-    "replicate_downloaderv3.js",
+    "index.js",
     "example.js",
     "README.md",
     "LICENSE.md"
