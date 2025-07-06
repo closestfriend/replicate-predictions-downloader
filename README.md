@@ -67,7 +67,7 @@ Run the script:
 npm start
 
 # Or directly
-node replicate_downloaderv3.js
+node index.js
 
 # If installed globally (coming soon)
 replicate-downloader
@@ -108,6 +108,10 @@ replicate_outputs_YYYY-MM-DD/
 └── ...
 replicate_metadata_YYYY-MM-DD.json
 ```
+
+## Support
+
+This is a tool I created for personal use. I'm sharing it in case others find it helpful, but I may not be able to provide extensive support. Pull requests are welcome!
 
 ## Contributing
 
