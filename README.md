@@ -37,7 +37,9 @@ cd replicate-predictions-downloader
 npm install
 ```
 
-#### Option 2: Install via npm (coming soon)
+#### Option 2: Install via npm
+
+[![npm version](https://badge.fury.io/js/replicate-predictions-downloader.svg)](https://badge.fury.io/js/replicate-predictions-downloader)
 
 ```bash
 npm install -g replicate-predictions-downloader
@@ -69,7 +71,7 @@ npm start
 # Or directly
 node index.js
 
-# If installed globally (coming soon)
+# If installed globally
 replicate-downloader
 ```
 
