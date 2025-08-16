@@ -1,4 +1,4 @@
-// Example of using ReplicateDownloader as a module
+// Example of using ReplicateDownloader as a module with date filtering
 import ReplicateDownloader from './index.js';
 import dotenv from 'dotenv';
 
@@ -15,25 +15,45 @@ async function example() {
   
   console.log('Starting Replicate Downloader example...');
   
-  // Create a new instance with your API token
-  const downloader = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN);
+  // Example 1: Download all predictions (default behavior)
+  console.log('\n📥 Example 1: Download all predictions');
+  const downloader1 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN);
+  // await downloader1.run(); // Uncomment to run
   
-  // Optional: Override default configuration
-  // downloader.config = {
-  //   requestDelay: 500,     // Increase delay between API requests
-  //   downloadDelay: 200,    // Increase delay between downloads
-  //   maxPromptLength: 30,   // Shorter prompt in filenames
-  //   createZips: false,     // Disable ZIP creation
-  //   enhancedMetadata: true // Keep enhanced metadata
-  // };
+  // Example 2: Download predictions since a specific date
+  console.log('\n📅 Example 2: Download predictions since 2024-01-01');
+  const downloader2 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+    since: '2024-01-01'
+  });
+  // await downloader2.run(); // Uncomment to run
   
-  try {
-    // Run the downloader
-    await downloader.run();
-    console.log('Example completed successfully!');
-  } catch (error) {
-    console.error('Example failed:', error.message);
-  }
+  // Example 3: Download predictions in a date range
+  console.log('\n📅 Example 3: Download predictions between 2024-01-01 and 2024-01-31');
+  const downloader3 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+    since: '2024-01-01',
+    until: '2024-01-31'
+  });
+  // await downloader3.run(); // Uncomment to run
+  
+  // Example 4: Incremental download (since last run)
+  console.log('\n🔄 Example 4: Incremental download since last successful run');
+  const downloader4 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+    lastRun: true
+  });
+  // await downloader4.run(); // Uncomment to run
+  
+  // Example 5: Download predictions from the last 7 days
+  console.log('\n📅 Example 5: Download predictions from the last 7 days');
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const downloader5 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+    since: sevenDaysAgo.toISOString()
+  });
+  // await downloader5.run(); // Uncomment to run
+  
+  console.log('\n💡 To run any example, uncomment the corresponding await line');
+  console.log('💡 The tool automatically saves state for incremental downloads');
+  console.log('💡 Use --help for command-line options when running directly');
 }
 
 // Run the example

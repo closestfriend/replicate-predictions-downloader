@@ -4,10 +4,23 @@ A Node.js script to download and organize all your Replicate predictions, includ
 
 ![Replicate Downloader Banner](https://replicate.com/static/favicon.png)
 
+<div align="center">
+
+[![npm version](https://badge.fury.io/js/replicate-predictions-downloader.svg)](https://badge.fury.io/js/replicate-predictions-downloader)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
+[![GitHub stars](https://img.shields.io/github/stars/closestfriend/replicate-predictions-downloader.svg)](https://github.com/closestfriend/replicate-predictions-downloader/stargazers)
+
+*A Node.js utility to preserve your Replicate AI predictions before they expire*
+
+</div>
+
 ## Features
 
 - 📥 Downloads all predictions from your Replicate account
 - 🗂️ Organizes files by model and date
+- 📅 **NEW: Date filtering** to avoid duplicate downloads
+- 🔄 **NEW: Incremental downloads** since last successful run
 - 🗜️ Creates ZIP archives for each model (optional)
 - 📊 Saves enhanced metadata for all predictions
 - 📈 Shows detailed download statistics
@@ -39,8 +52,6 @@ npm install
 
 #### Option 2: Install via npm
 
-[![npm version](https://badge.fury.io/js/replicate-predictions-downloader.svg)](https://badge.fury.io/js/replicate-predictions-downloader)
-
 ```bash
 npm install -g replicate-predictions-downloader
 ```
@@ -63,6 +74,8 @@ Set your API token using one of these methods:
 
 ## Usage
 
+### Basic Usage
+
 Run the script:
 ```bash
 # If installed locally
@@ -75,14 +88,45 @@ node index.js
 replicate-downloader
 ```
 
-The script will:
-1. Fetch all your predictions from Replicate
-2. Download all outputs
-3. Organize them by model
-4. Create ZIP archives (if enabled)
-5. Save detailed metadata
+### Date Filtering Options
+
+Avoid duplicate downloads with intelligent date filtering:
+
+```bash
+# Download predictions since a specific date
+node index.js --since "2024-01-15"
+
+# Download predictions in a date range
+node index.js --since "2024-01-01" --until "2024-01-31"
+
+# Download only new predictions since last run (recommended for regular use)
+node index.js --last-run
+
+# Download predictions from the last 7 days
+node index.js --since "7 days ago"
+
+# Download all predictions (default behavior)
+node index.js --all
+```
+
+### Date Format Examples
+
+The tool accepts various date formats:
+- ISO dates: `"2024-01-15"`, `"2024-01-15T10:30:00Z"`
+- Relative dates: `"2 days ago"`, `"1 week ago"`, `"yesterday"`
+- Natural language: `"January 15, 2024"`
+
+### What the Script Does
+
+1. **Fetches predictions** from Replicate (with optional date filtering)
+2. **Downloads all outputs** for successful predictions
+3. **Organizes files** by model and date
+4. **Creates ZIP archives** for each model (if enabled)
+5. **Saves detailed metadata** and tracks state for future runs
 
 ## Configuration
+
+### Basic Settings
 
 You can adjust these settings in the CONFIG object:
 - `requestDelay`: Delay between API requests (ms)
@@ -90,6 +134,15 @@ You can adjust these settings in the CONFIG object:
 - `maxPromptLength`: Maximum length for prompt in filenames
 - `createZips`: Whether to create ZIP archives
 - `enhancedMetadata`: Whether to save enhanced metadata
+
+### State Tracking
+
+The tool automatically creates a `.replicate-downloader-state.json` file to track:
+- Last successful run timestamp
+- Total predictions processed
+- Successful predictions count
+
+This enables the `--last-run` option for incremental downloads without duplicates.
 
 ## Output Structure
 
@@ -114,6 +167,27 @@ replicate_metadata_YYYY-MM-DD.json
 ## Support
 
 This is a tool I created for personal use. I'm sharing it in case others find it helpful, but I may not be able to provide extensive support. Pull requests are welcome!
+
+## Command-Line Interface
+
+The tool now includes a comprehensive CLI with help and version information:
+
+```bash
+# Show help
+node index.js --help
+
+# Show version
+node index.js --version
+
+# Available options
+Options:
+  -s, --since <date>     Download predictions created since this date
+  -u, --until <date>     Download predictions created until this date
+  -l, --last-run         Download only predictions since last successful run
+  --all                  Download all predictions (default behavior)
+  -h, --help             Display help for command
+  -V, --version          Display version for command
+```
 
 ## Contributing
 

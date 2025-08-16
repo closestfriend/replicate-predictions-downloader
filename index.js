@@ -2,6 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 import archiver from 'archiver';
+import { Command } from 'commander';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Get API token from environment variable
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
@@ -16,7 +21,7 @@ const CONFIG = {
 };
 
 class ReplicateDownloader {
-    constructor(apiToken) {
+    constructor(apiToken, options = {}) {
         this.apiToken = apiToken;
         this.baseUrl = 'https://api.replicate.com/v1';
         this.allPredictions = [];
@@ -25,6 +30,82 @@ class ReplicateDownloader {
             totalFiles: 0,
             totalSize: 0
         };
+        
+        // Date filtering options
+        this.dateFilters = {
+            since: options.since || null,
+            until: options.until || null,
+            lastRun: options.lastRun || false
+        };
+        
+        this.stateFile = '.replicate-downloader-state.json';
+    }
+
+    // Load state from previous runs
+    loadState() {
+        try {
+            if (fs.existsSync(this.stateFile)) {
+                const state = JSON.parse(fs.readFileSync(this.stateFile, 'utf8'));
+                return state;
+            }
+        } catch (error) {
+            console.warn('Warning: Could not load state file:', error.message);
+        }
+        return { lastSuccessfulRun: null };
+    }
+
+    // Save state for future runs
+    saveState(state) {
+        try {
+            fs.writeFileSync(this.stateFile, JSON.stringify(state, null, 2));
+        } catch (error) {
+            console.warn('Warning: Could not save state file:', error.message);
+        }
+    }
+
+    // Parse date string to ISO format
+    parseDate(dateStr) {
+        if (!dateStr) return null;
+        
+        // Handle various date formats
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+            throw new Error(`Invalid date format: ${dateStr}. Use formats like "2024-01-15", "2024-01-15T10:30:00Z", or "2 days ago"`);
+        }
+        
+        return date.toISOString();
+    }
+
+    // Get date filter parameters for API
+    getDateFilterParams() {
+        const params = new URLSearchParams();
+        
+        let sinceDate = this.dateFilters.since;
+        
+        // Handle --last-run option
+        if (this.dateFilters.lastRun) {
+            const state = this.loadState();
+            if (state.lastSuccessfulRun) {
+                sinceDate = state.lastSuccessfulRun;
+                console.log(`Using last run date: ${sinceDate}`);
+            } else {
+                console.log('No previous run found, downloading all predictions');
+            }
+        }
+        
+        if (sinceDate) {
+            const parsedSince = this.parseDate(sinceDate);
+            // Add a small buffer to avoid edge cases
+            const sinceBuffer = new Date(new Date(parsedSince).getTime() - 1000);
+            params.append('created_at.gte', sinceBuffer.toISOString());
+        }
+        
+        if (this.dateFilters.until) {
+            const parsedUntil = this.parseDate(this.dateFilters.until);
+            params.append('created_at.lte', parsedUntil);
+        }
+        
+        return params.toString();
     }
 
     // Make authenticated request to Replicate API
@@ -133,10 +214,17 @@ class ReplicateDownloader {
         });
     }
 
-    // Fetch all predictions with pagination
+    // Fetch all predictions with pagination and date filtering
     async fetchAllPredictions() {
         let nextUrl = `${this.baseUrl}/predictions`;
         let page = 1;
+
+        // Apply date filtering
+        const dateParams = this.getDateFilterParams();
+        if (dateParams) {
+            nextUrl += `?${dateParams}`;
+            console.log('Applying date filters:', dateParams);
+        }
 
         console.log('Starting to fetch predictions...');
 
@@ -152,7 +240,19 @@ class ReplicateDownloader {
                     console.log(`Total so far: ${this.allPredictions.length}`);
                 }
 
-                nextUrl = response.next;
+                // Handle pagination with date filters
+                if (response.next) {
+                    // Ensure date filters are preserved in next URL
+                    if (dateParams && !response.next.includes('created_at')) {
+                        const separator = response.next.includes('?') ? '&' : '?';
+                        nextUrl = `${response.next}${separator}${dateParams}`;
+                    } else {
+                        nextUrl = response.next;
+                    }
+                } else {
+                    nextUrl = null;
+                }
+                
                 page++;
 
                 // Custom delay
@@ -399,11 +499,37 @@ class ReplicateDownloader {
             console.log(`  ❌ Failed: ${failed}`);
             console.log(`  ⏹️  Canceled: ${canceled}`);
 
+            // Save state for future runs
+            if (successful > 0) {
+                const state = {
+                    lastSuccessfulRun: new Date().toISOString(),
+                    totalPredictions: this.allPredictions.length,
+                    successfulPredictions: successful
+                };
+                this.saveState(state);
+                console.log('\n💾 State saved for future incremental downloads');
+            }
+
         } catch (error) {
             console.error('💥 Fatal error:', error.message);
         }
     }
 }
+
+// Setup command-line interface
+const program = new Command();
+
+program
+    .name('replicate-downloader')
+    .description('Download and organize Replicate predictions with date filtering')
+    .version('2.0.0')
+    .option('-s, --since <date>', 'Download predictions created since this date (ISO format, e.g., "2024-01-15" or "2 days ago")')
+    .option('-u, --until <date>', 'Download predictions created until this date (ISO format)')
+    .option('-l, --last-run', 'Download only predictions created since the last successful run')
+    .option('--all', 'Download all predictions (default behavior)')
+    .parse();
+
+const options = program.opts();
 
 // Usage
 async function main() {
@@ -418,7 +544,35 @@ async function main() {
         return;
     }
 
-    const downloader = new ReplicateDownloader(REPLICATE_API_TOKEN);
+    // Validate date options
+    if (options.since && options.lastRun) {
+        console.error('❌ Cannot use both --since and --last-run options together');
+        return;
+    }
+
+    if (options.until && options.lastRun) {
+        console.error('❌ Cannot use both --until and --last-run options together');
+        return;
+    }
+
+    const downloaderOptions = {};
+    
+    if (options.since) {
+        downloaderOptions.since = options.since;
+        console.log(`📅 Filtering predictions since: ${options.since}`);
+    }
+    
+    if (options.until) {
+        downloaderOptions.until = options.until;
+        console.log(`📅 Filtering predictions until: ${options.until}`);
+    }
+    
+    if (options.lastRun) {
+        downloaderOptions.lastRun = true;
+        console.log('🔄 Using incremental download (since last run)');
+    }
+
+    const downloader = new ReplicateDownloader(REPLICATE_API_TOKEN, downloaderOptions);
     await downloader.run();
 }
 
