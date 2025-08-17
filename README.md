@@ -2,7 +2,7 @@
 
 A Node.js script to download and organize all your Replicate predictions, including images, metadata, and other outputs before they expire.
 
-![Replicate Downloader Banner](https://replicate.com/static/favicon.png)
+![Replicate Downloader Banner](replicate-prediction-banner.png)
 
 <div align="center">
 
