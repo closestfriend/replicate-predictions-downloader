@@ -1,4 +1,4 @@
-# Closestfriend's Replicate Predictions Downloader
+# Replicate Predictions Downloader 
 
 A Node.js script to download and organize all your Replicate predictions, including images, metadata, and other outputs before they expire.
 
