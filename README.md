@@ -17,18 +17,30 @@ A Node.js script to download and organize all your Replicate predictions, includ
 
 ## Features
 
-- 📥 Downloads all predictions from your Replicate account
-- 🗂️ Organizes files by model and date
-- 📅 **NEW: Date filtering** to avoid duplicate downloads
-- 🔄 **NEW: Incremental downloads** since last successful run
-- 🗜️ Creates ZIP archives for each model (optional)
-- 📊 Saves enhanced metadata for all predictions
-- 📈 Shows detailed download statistics
-- ⏱️ Preserves predictions before they expire
+- Downloads all predictions from your Replicate account
+- Organizes files by model and date
+- Date filtering to avoid duplicate downloads
+- Incremental downloads since last successful run
+- Creates ZIP archives for each model (optional)
+- Saves enhanced metadata for all predictions
+- Shows detailed download statistics
+- Preserves predictions before they expire
+
+## Quick Start
+
+```bash
+npx replicate-predictions-downloader --last-run
+```
+
+You'll need your API token from [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens) in the environment as `REPLICATE_API_TOKEN`.
 
 ## Why Use This Tool?
 
 Replicate only stores your predictions temporarily. This tool helps you preserve your valuable work before it disappears, with intelligent organization to make your outputs easy to find later.
+
+## Background
+
+Replicate deletes predictions after 30 days. If you've been experimenting with models and want to keep your outputs - for portfolios, research, or just because you like them - you need to download them yourself. This tool does that, with some organization thrown in so you can actually find things later.
 
 ## Setup
 
@@ -87,6 +99,10 @@ node index.js
 # If installed globally
 replicate-downloader
 ```
+
+## What You'll See
+
+When you run the tool, you'll see real-time progress as it fetches and downloads your predictions. The output includes details about what's being processed, download progress, and final statistics. Your files end up organized by model and date. There's also a metadata JSON if you're into that sort of thing.
 
 ### Date Filtering Options
 
@@ -202,74 +218,6 @@ The included .gitignore will help prevent this.
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
-## Background
-
-Replicate is a powerful platform for running AI models, but predictions don't last forever - they expire after a period of time. This tool was originally created while working on LLM behavior/personality research when I realized I was losing valuable generated content.
-
-After generating hundreds of images with Stable Diffusion, video clips, and other AI outputs, I needed a way to systematically download and organize everything before it disappeared. The tool has since evolved into a comprehensive solution for anyone who wants to preserve their Replicate predictions with intelligent organization and duplicate prevention.
-
-## Quick Start
-
-Get up and running in 2 minutes:
-
-1. **Get your API token**: Visit [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens)
-
-2. **Set your token**:
-   ```bash
-   export REPLICATE_API_TOKEN=your_token_here
-   ```
-
-3. **Install and run**:
-   ```bash
-   # Clone and install
-   git clone https://github.com/closestfriend/replicate-predictions-downloader.git
-   cd replicate-predictions-downloader
-   npm install
-   
-   # Download all your predictions
-   npm start
-   
-   # Or just new ones since last run (recommended for regular use)
-   node index.js --last-run
-   ```
-
-That's it! Your predictions will be downloaded and organized by model and date.
-
-## What You'll See
-
-When you run the downloader, here's what happens:
-
-```
-Starting Replicate Predictions Downloader v2.0.0
-Using date filter: since 2024-01-01
-Fetching predictions from Replicate API...
-Found 47 predictions to process
-
-PROCESSING STATISTICS:
-├── Total predictions: 47
-├── Successful: 43 (91.5%)
-├── Failed: 4 (8.5%)
-└── Models found: 8
-
-DOWNLOADING OUTPUTS:
-├── stable-diffusion-xl: 25 images
-├── midjourney-v6: 12 images  
-├── whisper-large-v3: 8 audio files
-└── llama-2-70b-chat: 6 text files
-
-SAVING TO: replicate_outputs_2024-01-15/
-├── by-model/
-│   ├── stable-diffusion-xl/
-│   ├── midjourney-v6/
-│   └── ...
-├── stable-diffusion-xl.zip
-├── midjourney-v6.zip
-└── replicate_metadata_2024-01-15.json
-
-Complete! Downloaded 51 files (127.3 MB)
-Elapsed time: 2m 34s
-Next time, use --last-run to download only new predictions
-```
 
 ## Common Issues
 
