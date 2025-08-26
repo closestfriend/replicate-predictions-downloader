@@ -204,4 +204,98 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Background
 
-This tool was created while working on LLM behavior/personality research to preserve valuable predictions before they expired.
+Replicate is a powerful platform for running AI models, but predictions don't last forever - they expire after a period of time. This tool was originally created while working on LLM behavior/personality research when I realized I was losing valuable generated content.
+
+After generating hundreds of images with Stable Diffusion, video clips, and other AI outputs, I needed a way to systematically download and organize everything before it disappeared. The tool has since evolved into a comprehensive solution for anyone who wants to preserve their Replicate predictions with intelligent organization and duplicate prevention.
+
+## Quick Start
+
+Get up and running in 2 minutes:
+
+1. **Get your API token**: Visit [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens)
+
+2. **Set your token**:
+   ```bash
+   export REPLICATE_API_TOKEN=your_token_here
+   ```
+
+3. **Install and run**:
+   ```bash
+   # Clone and install
+   git clone https://github.com/closestfriend/replicate-predictions-downloader.git
+   cd replicate-predictions-downloader
+   npm install
+   
+   # Download all your predictions
+   npm start
+   
+   # Or just new ones since last run (recommended for regular use)
+   node index.js --last-run
+   ```
+
+That's it! Your predictions will be downloaded and organized by model and date.
+
+## What You'll See
+
+When you run the downloader, here's what happens:
+
+```
+Starting Replicate Predictions Downloader v2.0.0
+Using date filter: since 2024-01-01
+Fetching predictions from Replicate API...
+Found 47 predictions to process
+
+PROCESSING STATISTICS:
+├── Total predictions: 47
+├── Successful: 43 (91.5%)
+├── Failed: 4 (8.5%)
+└── Models found: 8
+
+DOWNLOADING OUTPUTS:
+├── stable-diffusion-xl: 25 images
+├── midjourney-v6: 12 images  
+├── whisper-large-v3: 8 audio files
+└── llama-2-70b-chat: 6 text files
+
+SAVING TO: replicate_outputs_2024-01-15/
+├── by-model/
+│   ├── stable-diffusion-xl/
+│   ├── midjourney-v6/
+│   └── ...
+├── stable-diffusion-xl.zip
+├── midjourney-v6.zip
+└── replicate_metadata_2024-01-15.json
+
+Complete! Downloaded 51 files (127.3 MB)
+Elapsed time: 2m 34s
+Next time, use --last-run to download only new predictions
+```
+
+## Common Issues
+
+**"Invalid API token" or "Authentication failed"**
+- Double-check your token at [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens)
+- Make sure you've set `REPLICATE_API_TOKEN` in your environment or `.env` file
+- Try: `echo $REPLICATE_API_TOKEN` to verify it's set
+
+**"Network timeout" or connection errors**
+- Check your internet connection
+- The tool automatically retries failed downloads
+- For persistent issues, try running with fewer concurrent requests by editing the CONFIG object
+
+**"Permission denied" or file errors**
+- Ensure you have write permissions in the current directory
+- On Windows, try running as administrator if needed
+- Make sure you have enough disk space for your downloads
+
+**"No new predictions found"**
+- If using `--last-run`, this means you're up to date!
+- Try `--since "1 week ago"` to see recent predictions
+- Use `--all` to redownload everything (may create duplicates)
+
+**Files have weird names or special characters**
+- The tool automatically sanitizes filenames
+- Prompts longer than the limit (default: 50 chars) are truncated
+- Adjust `maxPromptLength` in CONFIG if needed
+
+**Need help?** Check existing [GitHub issues](https://github.com/closestfriend/replicate-predictions-downloader/issues) or create a new one.

@@ -17,7 +17,14 @@
     "predictions",
     "organization",
     "replicate-api",
-    "model-outputs"
+    "model-outputs",
+    "stable-diffusion",
+    "midjourney-alternative",
+    "ai-art",
+    "batch-download",
+    "backup",
+    "archive",
+    "cli"
   ],
   "author": "closestfriend",
   "license": "MIT",
