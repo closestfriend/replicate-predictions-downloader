@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2025-09-08
+
+### Added
+- Relative date parsing: "yesterday", "N minutes/hours/days/weeks/months/years ago"
+- Client-side date filtering and early-stop pagination when bounds met
+- ESLint v9 flat config with scripts (`lint`, `lint:fix`)
+
+### Changed
+- Improved README and internal examples; underscore convention for intentionally-unused variables
+
+### Security
+- Ensure state file and outputs remain gitignored
+
 ## [2.0.0] - 2024-12-15
 
 ### Added

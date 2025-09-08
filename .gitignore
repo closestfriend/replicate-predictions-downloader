@@ -9,6 +9,7 @@ node_modules/
 # Output directories and files
 replicate_outputs_*/
 replicate_metadata_*.json
+.replicate-downloader-state.json
 
 # OS files
 .DS_Store

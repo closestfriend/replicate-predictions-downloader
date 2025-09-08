@@ -66,17 +66,54 @@ class ReplicateDownloader {
     // Parse date string to ISO format
     parseDate(dateStr) {
         if (!dateStr) return null;
-        
-        // Handle various date formats
+
+        // Support common relative phrases
+        const input = String(dateStr).trim().toLowerCase();
+        const nowMs = Date.now();
+
+        // Yesterday
+        if (input === 'yesterday') {
+            return new Date(nowMs - 24 * 60 * 60 * 1000).toISOString();
+        }
+
+        // "N <unit> ago" where unit ∈ minutes/hours/days/weeks/months/years
+        const relMatch = input.match(/^(\d+)\s*(minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)\s+ago$/i);
+        if (relMatch) {
+            const amount = parseInt(relMatch[1], 10);
+            const unit = relMatch[2];
+
+            const unitToMs = {
+                minute: 60 * 1000,
+                minutes: 60 * 1000,
+                hour: 60 * 60 * 1000,
+                hours: 60 * 60 * 1000,
+                day: 24 * 60 * 60 * 1000,
+                days: 24 * 60 * 60 * 1000,
+                week: 7 * 24 * 60 * 60 * 1000,
+                weeks: 7 * 24 * 60 * 60 * 1000,
+                // Approximations for broader ranges
+                month: 30 * 24 * 60 * 60 * 1000,
+                months: 30 * 24 * 60 * 60 * 1000,
+                year: 365 * 24 * 60 * 60 * 1000,
+                years: 365 * 24 * 60 * 60 * 1000
+            };
+
+            const deltaMs = amount * (unitToMs[unit] || 0);
+            if (deltaMs > 0) {
+                return new Date(nowMs - deltaMs).toISOString();
+            }
+        }
+
+        // Fallback to native parser (ISO, RFC, etc.)
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) {
             throw new Error(`Invalid date format: ${dateStr}. Use formats like "2024-01-15", "2024-01-15T10:30:00Z", or "2 days ago"`);
         }
-        
+
         return date.toISOString();
     }
 
-    // Get date filter parameters for API
+    // Get date filter parameters for API (server may ignore these)
     getDateFilterParams() {
         const params = new URLSearchParams();
         
@@ -106,6 +143,28 @@ class ReplicateDownloader {
         }
         
         return params.toString();
+    }
+
+    // Compute client-side date bounds for filtering
+    getDateFilterBounds() {
+        let sinceDate = this.dateFilters.since;
+        if (this.dateFilters.lastRun) {
+            const state = this.loadState();
+            if (state.lastSuccessfulRun) {
+                sinceDate = state.lastSuccessfulRun;
+            }
+        }
+        let sinceIsoBuffer = null;
+        if (sinceDate) {
+            const parsedSince = this.parseDate(sinceDate);
+            const sinceBuffer = new Date(new Date(parsedSince).getTime() - 1000);
+            sinceIsoBuffer = sinceBuffer.toISOString();
+        }
+        let untilIso = null;
+        if (this.dateFilters.until) {
+            untilIso = this.parseDate(this.dateFilters.until);
+        }
+        return { sinceIsoBuffer, untilIso };
     }
 
     // Make authenticated request to Replicate API
@@ -172,7 +231,7 @@ class ReplicateDownloader {
         }
         
         // Try to find any string input that looks like a prompt
-        for (const [key, value] of Object.entries(input)) {
+        for (const [_key, value] of Object.entries(input)) {
             if (typeof value === 'string' && value.length > 5 && value.length < 200) {
                 return this.sanitizeFilename(value);
             }
@@ -219,11 +278,17 @@ class ReplicateDownloader {
         let nextUrl = `${this.baseUrl}/predictions`;
         let page = 1;
 
-        // Apply date filtering
+        // Apply date filtering (server may ignore these; we also filter client-side)
         const dateParams = this.getDateFilterParams();
         if (dateParams) {
             nextUrl += `?${dateParams}`;
-            console.log('Applying date filters:', dateParams);
+            console.log('Applying date filters (server or client-side):', dateParams);
+        }
+
+        // Client-side bounds
+        const { sinceIsoBuffer, untilIso } = this.getDateFilterBounds();
+        if (sinceIsoBuffer || untilIso) {
+            console.log('Client-side date bounds:', { sinceIsoBuffer, untilIso });
         }
 
         console.log('Starting to fetch predictions...');
@@ -235,9 +300,19 @@ class ReplicateDownloader {
                 const response = await this.makeRequest(nextUrl);
                 
                 if (response.results) {
-                    this.allPredictions.push(...response.results);
-                    console.log(`Found ${response.results.length} predictions on page ${page}`);
-                    console.log(`Total so far: ${this.allPredictions.length}`);
+                    const pageResults = response.results;
+                    this.allPredictions.push(...pageResults);
+                    console.log(`Found ${pageResults.length} predictions on page ${page}`);
+                    console.log(`Total so far (pre-filter): ${this.allPredictions.length}`);
+
+                    // Heuristic early stop: if all items are older than since bound, stop paginating
+                    if (sinceIsoBuffer && pageResults.length > 0) {
+                        const allOlder = pageResults.every(p => p.created_at && p.created_at < sinceIsoBuffer);
+                        if (allOlder) {
+                            console.log('Reached items older than since bound; stopping pagination early');
+                            nextUrl = null;
+                        }
+                    }
                 }
 
                 // Handle pagination with date filters
@@ -264,7 +339,22 @@ class ReplicateDownloader {
             }
         }
 
-        console.log(`\nTotal predictions fetched: ${this.allPredictions.length}`);
+        // Final client-side filter within bounds
+        if (this.allPredictions.length > 0) {
+            const before = this.allPredictions.length;
+            this.allPredictions = this.allPredictions.filter(p => {
+                const created = p.created_at;
+                if (!created) return true;
+                if (sinceIsoBuffer && created < sinceIsoBuffer) return false;
+                if (untilIso && created > untilIso) return false;
+                return true;
+            });
+            if (sinceIsoBuffer || untilIso) {
+                console.log(`Applied client-side date filter: ${before} -> ${this.allPredictions.length}`);
+            }
+        }
+
+        console.log(`\nTotal predictions fetched (post-filter): ${this.allPredictions.length}`);
         return this.allPredictions;
     }
 

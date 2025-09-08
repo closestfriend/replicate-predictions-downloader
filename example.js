@@ -17,19 +17,19 @@ async function example() {
   
   // Example 1: Download all predictions (default behavior)
   console.log('\n📥 Example 1: Download all predictions');
-  const downloader1 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN);
+  const _downloader1 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN);
   // await downloader1.run(); // Uncomment to run
   
   // Example 2: Download predictions since a specific date
   console.log('\n📅 Example 2: Download predictions since 2024-01-01');
-  const downloader2 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+  const _downloader2 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
     since: '2024-01-01'
   });
   // await downloader2.run(); // Uncomment to run
   
   // Example 3: Download predictions in a date range
   console.log('\n📅 Example 3: Download predictions between 2024-01-01 and 2024-01-31');
-  const downloader3 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+  const _downloader3 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
     since: '2024-01-01',
     until: '2024-01-31'
   });
@@ -37,7 +37,7 @@ async function example() {
   
   // Example 4: Incremental download (since last run)
   console.log('\n🔄 Example 4: Incremental download since last successful run');
-  const downloader4 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+  const _downloader4 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
     lastRun: true
   });
   // await downloader4.run(); // Uncomment to run
@@ -46,7 +46,7 @@ async function example() {
   console.log('\n📅 Example 5: Download predictions from the last 7 days');
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const downloader5 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
+  const _downloader5 = new ReplicateDownloader(process.env.REPLICATE_API_TOKEN, {
     since: sevenDaysAgo.toISOString()
   });
   // await downloader5.run(); // Uncomment to run
