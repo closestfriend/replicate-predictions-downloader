@@ -29,6 +29,10 @@ A Node.js script to download and organize all your Replicate predictions, includ
 ## Quick Start
 
 ```bash
+# First time - download all predictions
+npx replicate-predictions-downloader
+
+# Subsequent runs - download only new predictions since last run (optional)
 npx replicate-predictions-downloader --last-run
 ```
 
@@ -51,7 +55,31 @@ Replicate deletes predictions after 30 days. If you've been experimenting with m
 
 ### Installation
 
-#### Option 1: Clone and install locally
+Choose the method that best fits your needs:
+
+#### Option 1: Quick one-time use (no installation needed)
+
+Perfect for trying out the tool or occasional use. Downloads and runs the latest version directly:
+
+```bash
+npx replicate-predictions-downloader
+```
+
+#### Option 2: Install globally for repeated use
+
+Best if you'll be using this tool regularly. Installs a permanent command on your system:
+
+```bash
+# Install globally
+npm install -g replicate-predictions-downloader
+
+# Then run anytime with:
+replicate-downloader
+```
+
+#### Option 3: Clone and customize
+
+For developers who want to modify the code or contribute to the project:
 
 ```bash
 # Clone the repository
@@ -60,12 +88,11 @@ cd replicate-predictions-downloader
 
 # Install dependencies
 npm install
-```
 
-#### Option 2: Install via npm
-
-```bash
-npm install -g replicate-predictions-downloader
+# Run the tool
+npm start
+# or
+node index.js
 ```
 
 ### API Token Setup
@@ -88,16 +115,19 @@ Set your API token using one of these methods:
 
 ### Basic Usage
 
-Run the script:
-```bash
-# If installed locally
-npm start
+Run the tool based on how you installed it:
 
-# Or directly
-node index.js
+```bash
+# If using npx (no installation)
+npx replicate-predictions-downloader
 
 # If installed globally
 replicate-downloader
+
+# If cloned locally
+npm start
+# or
+node index.js
 ```
 
 ## What You'll See
