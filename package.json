@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "replicate-downloader": "./index.js",
-    "replicate-predictions-downloader": "./index.js"
+    "replicate-downloader": "index.js",
+    "replicate-predictions-downloader": "index.js"
   },
   "scripts": {
     "start": "node index.js",
