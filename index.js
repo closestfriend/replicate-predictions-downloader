@@ -2,9 +2,14 @@
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
+import { fileURLToPath } from 'url';
 import archiver from 'archiver';
 import { Command } from 'commander';
 import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
 
 // Load environment variables
 dotenv.config();
@@ -613,7 +618,7 @@ const program = new Command();
 program
     .name('replicate-downloader')
     .description('Download and organize Replicate predictions with date filtering')
-    .version('2.0.0')
+    .version(packageJson.version)
     .option('-s, --since <date>', 'Download predictions created since this date (ISO format, e.g., "2024-01-15" or "2 days ago")')
     .option('-u, --until <date>', 'Download predictions created until this date (ISO format)')
     .option('-l, --last-run', 'Download only predictions created since the last successful run')
