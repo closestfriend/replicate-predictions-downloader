@@ -1,6 +1,6 @@
 {
   "name": "replicate-predictions-downloader",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "A Node.js script to download and organize all your Replicate predictions, including images, metadata, and other outputs",
   "main": "index.js",
   "type": "module",
